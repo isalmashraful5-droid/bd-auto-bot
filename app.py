@@ -1,8 +1,10 @@
 from flask import Flask, request
 import telebot
+import os
 
-TOKEN = "8658276400:AAFhnhmzujZDfaYxPy_8iyUXURaEh4-0pFU"
-bot = telebot.TeleBot(8658276400:AAFhnhmzujZDfaYxPy_8iyUXURaEh4-0pFU)
+# Get token from Render environment variable
+TOKEN = os.getenv("BOT_TOKEN")
+bot = telebot.TeleBot(TOKEN)
 
 app = Flask(__name__)
 
@@ -13,6 +15,7 @@ requests_db = {}
 def home():
     return "Bot Running"
 
+# Telegram commands
 @bot.message_handler(commands=['start'])
 def start(msg):
     users[msg.chat.id] = {"balance":0}
@@ -27,6 +30,7 @@ def balance(msg):
 def deposit(msg):
     bot.send_message(msg.chat.id, "Send money to: 01XXXXXXXXX\nThen send: amount last4digit")
 
+# Handle user messages
 @bot.message_handler(func=lambda m: True)
 def handle(msg):
     try:
@@ -36,19 +40,18 @@ def handle(msg):
     except:
         pass
 
+# SMS POST route
 @app.route('/sms', methods=['POST'])
 def sms():
     data = request.json
     amount = data['amount']
     last4 = data['phone'][-4:]
-
     if last4 in requests_db:
         req = requests_db[last4]
         if req['amount'] == amount:
             uid = req['user']
             users[uid]["balance"] += amount
             bot.send_message(uid, f"Deposit Success: {amount} TK")
-
     return "ok"
 
 if __name__ == "__main__":
