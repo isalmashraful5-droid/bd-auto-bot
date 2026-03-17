@@ -1,1 +1,2 @@
-# bd-auto-bot
+BD Auto Bot
+Telegram bot for bKash/Nagad auto deposit system
